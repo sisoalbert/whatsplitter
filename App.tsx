@@ -12,13 +12,14 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
+import Sound from 'react-native-sound';
 
 const PermissionsPage = () => {
   const {requestPermission} = useCameraPermission();
-
   React.useEffect(() => {
     requestPermission();
   }, [requestPermission]);
+
   return (
     <SafeAreaView>
       <Text>Permissions is required.</Text>
@@ -39,14 +40,26 @@ function App() {
   const {hasPermission} = useCameraPermission();
   const cameraRef: any = React.useRef(null);
   const [photo, setPhoto] = React.useState(null);
-
   console.log(photo);
+
+  // Enable playback in silence mode
+  Sound.setCategory('Playback');
+
+  // Load the sound file 'whoosh.mp3' from the app bundle
+  // See notes below about preloading sounds within initialization code below.
+  const cameraSound = new Sound('camera.mp3', Sound.MAIN_BUNDLE, error => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+  });
 
   const takePhoto = async () => {
     if (cameraRef.current) {
       const options = {quality: 0.8, flashMode: 'on'};
       const capturedPhoto = await cameraRef.current.takePhoto(options);
       setPhoto(capturedPhoto.path);
+      cameraSound.play();
     }
   };
 
@@ -57,14 +70,11 @@ function App() {
     <>
       {photo ? (
         <>
-          <Image
-            style={{flex: 1}}
-            source={{
-              uri: `file://'${photo}`,
-            }}
-          />
+          <Image style={{flex: 1}} source={{uri: `file://'${photo}`}} />
           <TouchableOpacity
-            onPress={() => setPhoto(null)}
+            onPress={() => {
+              setPhoto(null);
+            }}
             style={{
               borderColor: 'black',
               borderWidth: 2,
@@ -104,6 +114,6 @@ function App() {
     </>
   );
 }
-export default App;
 
+export default App;
 const styles = StyleSheet.create({});
