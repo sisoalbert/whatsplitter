@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   View,
+  Vibration,
 } from 'react-native';
 import React from 'react';
 import {
@@ -74,6 +75,7 @@ function App() {
           <TouchableOpacity
             onPress={() => {
               setPhoto(null);
+              Vibration.vibrate();
             }}
             style={{
               borderColor: 'black',
